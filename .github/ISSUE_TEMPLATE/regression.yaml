@@ -14,7 +14,7 @@ body:
     attributes:
       label: Expected behavior
       description: |
-        Describe what you were expecting JMeter to do
+        Describe what you were expecting PMeasure to do
       placeholder: |
         Here you can also attach log files, screenshots or a video
   - type: textarea
@@ -22,7 +22,7 @@ body:
     attributes:
       label: Actual behavior
       description: |
-        Describe what you observed JMeter did instead
+        Describe what you observed PMeasure did instead
       placeholder: |
         Here you can also attach log files (e.g. jmeter.log), screenshots or a video
   - type: textarea
@@ -38,10 +38,10 @@ body:
   - type: input
     id: jmeter-version
     attributes:
-      label: JMeter Version
+      label: PMeasure Version
       description: |
-        What JMeter version and edition did you use?
-        Note: While you can obviously continue using older versions of JMeter, it may well be that your bug is already fixed. If you're using an older version, please also try to reproduce the bug in the latest version of JMeter before reporting it.
+        What PMeasure version and edition did you use?
+        Note: While you can obviously continue using older versions of PMeasure, it may well be that your bug is already fixed. If you're using an older version, please also try to reproduce the bug in the latest version of PMeasure before reporting it.
       placeholder: ex. 5.6
     validations:
       required: true
