@@ -31,3 +31,8 @@ NOTICE. Apache JMeter is a trademark of the Apache Software Foundation.
 PMeasure is a modified derivative, is not affiliated with or endorsed by
 the ASF, and is developed independently. The original code and its
 LICENSE and NOTICE files are retained unchanged.
+
+## Author
+
+PMeasure is authored and maintained by **Yavdhesh Sanchihar**
+(YuvonAI and Tech Inc.).

@@ -1,5 +1,7 @@
 # JMeter Engine — Architecture, Definitions, Benchmark Protocol
 
+Author: **Yavdhesh Sanchihar** (YuvonAI and Tech Inc.)
+
 Project: keep Apache JMeter's look and feel (GUI, .jmx plans, sampler model)
 unchanged; re-engineer the internals for maximum load-generation performance.
 Home: dedicated repo **Yavdhesh/PMeasure** (user decision 2026-11-16).
