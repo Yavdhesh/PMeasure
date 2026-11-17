@@ -86,7 +86,7 @@ val displayVersion by extra {
         }
 }
 
-println("Building JMeter $version")
+println("Building PMeasure $version")
 
 fun reportsForHumans() = !(System.getenv()["CI"]?.toBoolean() ?: boolProp("CI") ?: false)
 
