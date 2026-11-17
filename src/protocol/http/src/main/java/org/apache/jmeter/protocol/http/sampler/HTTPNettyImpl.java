@@ -130,10 +130,8 @@ public class HTTPNettyImpl extends HTTPHCAbstractImpl {
             res.sampleEnd();
 
             if (cacheManager != null) {
-                cacheManager.saveDetails(name -> {
-                    String value = responseHeader(res, name);
-                    return value;
-                }, res);
+                final HTTPSampleResult completed = res;
+                cacheManager.saveDetails(name -> responseHeader(completed, name), completed);
             }
 
             res = resultProcessing(areFollowingRedirect, frameDepth, res);
@@ -236,7 +234,7 @@ public class HTTPNettyImpl extends HTTPHCAbstractImpl {
     }
 
     /** Request URI: path plus query; for GET-style methods the arguments form the query. */
-    private String buildUri(URL url, String method) {
+    private String buildUri(URL url, String method) throws IOException {
         String path = StringUtilities.isEmpty(url.getPath()) ? "/" : url.getPath(); // $NON-NLS-1$
         String query = url.getQuery();
         boolean argumentsInQuery = HTTPConstants.GET.equalsIgnoreCase(method)
@@ -260,7 +258,7 @@ public class HTTPNettyImpl extends HTTPHCAbstractImpl {
         return query == null || query.isEmpty() ? path : path + '?' + query;
     }
 
-    private String argumentsQuerySuffix() {
+    private String argumentsQuerySuffix() throws IOException {
         StringBuilder suffix = new StringBuilder();
         for (JMeterProperty property : getArguments().getEnabledArguments()) {
             HTTPArgument arg = (HTTPArgument) property.getObjectValue();
