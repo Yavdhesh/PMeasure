@@ -5,3 +5,4 @@
 |_|    |_|  |_||_____|/_/   \_\|____/  \___/ |_| \_\|_____| @VERSION@
 
 Copyright (c) 1999-@YEAR@ The Apache Software Foundation
+PMeasure modifications Copyright (c) 2026 Yavdhesh Sanchihar, YuvonAI and Tech Inc.
