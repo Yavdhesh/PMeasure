@@ -61,6 +61,10 @@ dependencies {
         exclude("com.google.code.findbugs", "jsr305")
     }
     implementation("dnsjava:dnsjava")
+    // PMeasure: Netty backs the opt-in "Netty" HTTP sampler implementation
+    // (HTTPNettyImpl + NettyTransport); HttpClient4 remains the default.
+    implementation("io.netty:netty-codec-http:4.1.141.Final")
+    implementation("io.netty:netty-handler:4.1.141.Final")
     implementation("org.apache.httpcomponents.client5:httpclient5")
     implementation("org.apache.httpcomponents.core5:httpcore5")
     implementation("org.apache.httpcomponents.core5:httpcore5-h2") {

@@ -49,6 +49,13 @@ public final class HTTPSamplerFactory {
     public static final String IMPL_HTTP_CLIENT3_1 = "HttpClient3.1"; // $NON-NLS-1$
 
     public static final String IMPL_JAVA = "Java"; // $NON-NLS-1$
+
+    /**
+     * Use the Netty HTTP implementation (PMeasure)
+     *
+     * @since 1.0.0 (PMeasure)
+     */
+    public static final String IMPL_NETTY = "Netty";  // $NON-NLS-1$
     //- JMX
 
     public static final String DEFAULT_CLASSNAME =
@@ -87,11 +94,14 @@ public final class HTTPSamplerFactory {
         if (alias.equals(IMPL_HTTP_CLIENT5)) {
             return new HTTPSamplerProxy(IMPL_HTTP_CLIENT5);
         }
+        if (alias.equals(IMPL_NETTY)) {
+            return new HTTPSamplerProxy(IMPL_NETTY);
+        }
         throw new IllegalArgumentException("Unknown sampler type: '" + alias+"'");
     }
 
     public static String[] getImplementations(){
-        return new String[]{IMPL_HTTP_CLIENT4, IMPL_HTTP_CLIENT5, IMPL_JAVA};
+        return new String[]{IMPL_HTTP_CLIENT4, IMPL_HTTP_CLIENT5, IMPL_JAVA, IMPL_NETTY};
     }
 
     /**
@@ -128,6 +138,8 @@ public final class HTTPSamplerFactory {
             return new HTTPHC4Impl(base);
         } else if (IMPL_HTTP_CLIENT5.equals(impl)) {
             return new HTTPHC5Impl(base);
+        } else if (IMPL_NETTY.equals(impl)) {
+            return new HTTPNettyImpl(base);
         } else {
             throw new IllegalArgumentException("Unknown implementation type: '"+impl+"'");
         }
