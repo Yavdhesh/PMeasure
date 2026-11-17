@@ -55,7 +55,7 @@ val platformProjects by extra {
 
 val notPublishedProjects by extra {
     listOf(
-        projects.jmeter,
+        projects.pmeasure,
         projects.src,
         projects.src.bshclient,
         projects.src.dist,
