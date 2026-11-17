@@ -547,7 +547,7 @@ public class JMeter implements JMeterPlugin {
     }
 
     /**
-     * Displays as ASCII Art Apache JMeter version + Copyright notice
+     * Displays as ASCII Art PMeasure version + Copyright notice
      */
     private static void displayAsciiArt() {
         try (InputStream inputStream = JMeter.class.getResourceAsStream("jmeter_as_ascii_art.txt")) {

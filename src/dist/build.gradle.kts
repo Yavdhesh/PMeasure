@@ -134,7 +134,7 @@ val libs = copySpec {
 }
 
 val libsExt = copySpec {
-    // Apache JMeter jars
+    // PMeasure jars (the ApacheJMeter_* file names are kept: plugins link against them)
 }
 
 val binLibs = copySpec {
@@ -472,7 +472,7 @@ val previewSite by tasks.registering(Sync::class) {
 }
 
 val distributionGroup = "distribution"
-val baseFolder = "apache-jmeter-${rootProject.version}"
+val baseFolder = "pmeasure-${rootProject.version}"
 
 fun CopySpec.javadocs() = from(javadocAggregate)
 
@@ -583,7 +583,7 @@ for (type in listOf("binary", "source")) {
 
             // Gradle defaults to the following pattern, and JMeter was using apache-jmeter-5.1_src.zip
             // [baseName]-[appendix]-[version]-[classifier].[extension]
-            archiveBaseName.set("apache-jmeter-${rootProject.version}${if (type == "source") "_src" else ""}")
+            archiveBaseName.set("pmeasure-${rootProject.version}${if (type == "source") "_src" else ""}")
             // Discard project version since we want it to be added before "_src"
             archiveVersion.set("")
             CrLfSpec(eol).run {

@@ -73,7 +73,7 @@ publishing {
                     }
                 }
             }
-            name.set("Apache JMeter ${project.name.replaceFirstChar { it.titlecaseChar() }}")
+            name.set("PMeasure ${project.name.replaceFirstChar { it.titlecaseChar() }}")
             // This code might be executed before project-related build.gradle.kts is evaluated
             // So we delay access to project.description
             description.set(

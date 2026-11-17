@@ -56,7 +56,7 @@ if (JavaVersion.current() < JavaVersion.VERSION_17) {
 
 // This is the name of a current project
 // Note: it cannot be inferred from the directory name as developer might clone JMeter to jmeter_tmp folder
-rootProject.name = "jmeter"
+rootProject.name = "pmeasure"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
