@@ -10,7 +10,7 @@ plan at increasing user counts, one variable changed at a time.
 | Item | Value |
 | --- | --- |
 | Generator | PMeasure `feat/netty-http-impl` @ `026783c93f`, GUI mode with JConsole attached, Windows 11 |
-| Generator heap | 1 GiB for the first 10k capture (observed maximum in JConsole; a 4 GiB configuration is planned — to be confirmed before the ladder continues) |
+| Generator heap | 1 GiB for the 10k captures; 4 GiB for the first 20k attempt (ended in OutOfMemoryError); 8 GiB from the 20k re-run onward |
 | Target application | JvmPerformanceLab (Spring Boot), Tomcat with a virtual-thread executor for requests |
 | Target heap | 2 GiB |
 | Test plan | 10 s ramp-up, 300 s duration (scheduler), loop forever |
@@ -76,6 +76,12 @@ Two defects make this attempt unusable as a rung:
    Discriminating checks: search `jmeter.log` for
    `OutOfMemoryError` versus "Cannot assign requested address", and
    `netsh int ipv4 show dynamicport tcp` on the generator.
+3. **Generator heap exhausted.** The 20k attempt ran with a 4 GiB
+   generator heap and ended in OutOfMemoryError — with the target
+   throttled to 200 platform threads, in-flight samples piled up on
+   the generator. The generator heap was raised to 8 GiB for the
+   re-run. The ephemeral-port ceiling above remains a separate,
+   still-standing limit for the higher rungs.
 
 Implication for the ladder: on a single Windows generator talking to
 a single target endpoint, concurrent connections are bounded by the
