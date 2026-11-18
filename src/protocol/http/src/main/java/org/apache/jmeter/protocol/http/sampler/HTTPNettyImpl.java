@@ -103,7 +103,7 @@ public class HTTPNettyImpl extends HTTPHCAbstractImpl {
             byte[] body = buildBody(method, res);
             String uri = buildUri(url, method);
             FullHttpRequest request = NettyTransport.newRequest(method, uri, body);
-            applyHeaders(request, url, method, body);
+            applyHeaders(request, url, body);
             currentRequest = request;
             res.setRequestHeaders(formatHeaders(iterable(request.headers()), ALL_EXCEPT_COOKIE));
 
@@ -271,7 +271,7 @@ public class HTTPNettyImpl extends HTTPHCAbstractImpl {
     }
 
     /** Applies Host, the header manager's headers, cookies and the default content type. */
-    private void applyHeaders(FullHttpRequest request, URL url, String method, byte[] body) {
+    private void applyHeaders(FullHttpRequest request, URL url, byte[] body) {
         HttpHeaders headers = request.headers();
         int port = url.getPort() != -1 ? url.getPort() : url.getDefaultPort();
         boolean defaultPort = port == url.getDefaultPort();
@@ -295,7 +295,7 @@ public class HTTPNettyImpl extends HTTPHCAbstractImpl {
     private String buildHeaderBlock(URL url, String method, byte[] body) {
         FullHttpRequest probe = NettyTransport.newRequest(method, "/", body); // $NON-NLS-1$
         try {
-            applyHeaders(probe, url, method, body);
+            applyHeaders(probe, url, body);
             return formatHeaders(iterable(probe.headers()), name -> true);
         } finally {
             probe.release();
@@ -355,7 +355,7 @@ public class HTTPNettyImpl extends HTTPHCAbstractImpl {
             }
         }
         return CacheManager.requestHeaderSink(
-                action -> parsed.forEach(action::accept),
+                action -> parsed.forEach(action),
                 (name, value) -> {
                     // The cache lookup only reads; conditional headers it would
                     // add are not applied by this implementation in M1.
