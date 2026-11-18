@@ -37,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.QueryStringEncoder;
@@ -119,12 +118,7 @@ public class HTTPNettyImpl extends HTTPHCAbstractImpl {
                     future.get(sampleTimeoutMillis(connectTimeout, responseTimeout), TimeUnit.MILLISECONDS);
             long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos);
 
-            FullHttpResponse response = nettyResponse.response();
-            try {
-                populateResult(res, url, response);
-            } finally {
-                response.release();
-            }
+            populateResult(res, url, nettyResponse);
             res.setLatency(Math.min(elapsedMillis, res.getTime()));
             res.sampleEnd();
 
@@ -302,16 +296,14 @@ public class HTTPNettyImpl extends HTTPHCAbstractImpl {
         }
     }
 
-    private void populateResult(HTTPSampleResult res, URL url, FullHttpResponse response) {
+    private void populateResult(HTTPSampleResult res, URL url, NettyTransport.NettyResponse response) {
         HttpHeaders headers = response.headers();
         String contentType = headers.get(HttpHeaderNames.CONTENT_TYPE);
         if (contentType != null) {
             res.setContentType(contentType);
             res.setEncodingAndType(contentType);
         }
-        int readable = response.content().readableBytes();
-        byte[] data = new byte[readable];
-        response.content().getBytes(response.content().readerIndex(), data);
+        byte[] data = response.body();
         res.setResponseData(data);
 
         int statusCode = response.status().code();
@@ -321,7 +313,7 @@ public class HTTPNettyImpl extends HTTPHCAbstractImpl {
         res.setResponseHeaders(formatHeaders(iterable(headers), name -> true));
         long headerBytes = (long) res.getResponseHeaders().length() + (long) headers.size() + 1L + 2L;
         res.setHeadersSize((int) headerBytes);
-        res.setBodySize((long) readable);
+        res.setBodySize((long) data.length);
         if (res.isRedirect()) {
             String location = headers.get(HttpHeaderNames.LOCATION);
             if (location == null) {

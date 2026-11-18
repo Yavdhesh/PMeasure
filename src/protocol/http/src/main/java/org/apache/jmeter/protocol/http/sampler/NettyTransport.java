@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -41,13 +42,16 @@ import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.channel.pool.FixedChannelPool;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.ssl.SslContext;
@@ -269,7 +273,7 @@ final class NettyTransport {
         protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) {
             CompletableFuture<NettyResponse> pending = ctx.channel().attr(PENDING).getAndSet(null);
             if (pending != null) {
-                pending.complete(new NettyResponse(msg.retain()));
+                pending.complete(new NettyResponse(msg));
             }
         }
 
@@ -294,20 +298,38 @@ final class NettyTransport {
         }
     }
 
-    /** One aggregated HTTP response. */
+    /** One aggregated HTTP response, copied out of the reference-counted message. */
     static final class NettyResponse {
-        private final FullHttpResponse response;
+        private final HttpResponseStatus status;
+        private final HttpHeaders headers;
+        private final byte[] body;
+        private final boolean keepAlive;
 
         NettyResponse(FullHttpResponse response) {
-            this.response = response;
+            // The pipeline releases the original message as soon as the handler
+            // returns, so everything the sampler needs is copied here. A copied
+            // response holds no pooled buffer, which means a sample that is
+            // abandoned (timeout, interrupt) can never leak one.
+            this.status = response.status();
+            this.headers = new DefaultHttpHeaders().add(response.headers());
+            this.body = ByteBufUtil.getBytes(response.content());
+            this.keepAlive = HttpUtil.isKeepAlive(response);
         }
 
-        FullHttpResponse response() {
-            return response;
+        HttpResponseStatus status() {
+            return status;
+        }
+
+        HttpHeaders headers() {
+            return headers;
+        }
+
+        byte[] body() {
+            return body;
         }
 
         boolean keepAlive() {
-            return HttpUtil.isKeepAlive(response);
+            return keepAlive;
         }
     }
 }
