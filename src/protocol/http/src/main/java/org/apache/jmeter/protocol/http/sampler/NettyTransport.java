@@ -227,7 +227,9 @@ final class NettyTransport {
                 channel.pipeline().addLast(sslContext.newHandler(channel.alloc(), key.host(), key.port()));
             }
             channel.pipeline().addLast(new HttpClientCodec());
-            channel.pipeline().addLast(new HttpContentDecompressor());
+            // (non-strict, no allocation cap) — the values the deprecated no-arg
+            // constructor used; the build treats warnings as errors.
+            channel.pipeline().addLast(new HttpContentDecompressor(false, 0));
             channel.pipeline().addLast(new HttpObjectAggregator(MAX_CONTENT_LENGTH));
             if (key.readTimeoutMillis() > 0) {
                 channel.pipeline().addLast(new ReadTimeoutHandler(key.readTimeoutMillis(), TimeUnit.MILLISECONDS));
