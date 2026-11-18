@@ -177,16 +177,29 @@ final class NettyTransport {
                     result.completeExceptionally(wf.cause());
                 }
             });
-            result.whenComplete((response, error) -> {
-                if (error != null || response == null || !response.keepAlive() || !channel.isActive()) {
-                    channel.close();
-                }
-                pool.release(channel);
-            });
+            releaseOnCompletion(result, pool, channel);
         });
         return result;
     }
 
+    /**
+     * Returns the channel to its pool once the request completes; the channel is
+     * closed instead when the exchange failed or the response is not keep-alive.
+     * The cleanup is fire-and-forget: the result is already complete by then, so
+     * there is no future left that cleanup failures could be reported to.
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    private static void releaseOnCompletion(CompletableFuture<NettyResponse> result, FixedChannelPool pool,
+            Channel channel) {
+        result.whenComplete((response, error) -> {
+            if (error != null || response == null || !response.keepAlive() || !channel.isActive()) {
+                channel.close();
+            }
+            pool.release(channel);
+        });
+    }
+
+    @SuppressWarnings("FutureReturnValueIgnored")
     void shutdown() {
         try {
             pools.close();
@@ -261,6 +274,7 @@ final class NettyTransport {
         }
 
         @Override
+        @SuppressWarnings("FutureReturnValueIgnored")
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             CompletableFuture<NettyResponse> pending = ctx.channel().attr(PENDING).getAndSet(null);
             if (pending != null) {
