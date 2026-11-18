@@ -25,7 +25,7 @@ implementation HttpClient4. Screenshots per rung are stored in
 | Users | Throughput (req/s) | Avg (ms) | Max (ms) | Error % | Generator heap used | Generator CPU | Virtual threads (mounted / queued) | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 10,000 | not yet recorded | – | – | – | ~820 MB of 1 GiB | ~63% | 32 / 9,934 | Target old generation full at 1.502 GiB; last target GC cause "G1 Humongous Allocation" |
-| 20,000 | pending | | | | | | | |
+| 20,000 | invalid — see notes | – | – | – | – | – | – | First attempt capped at ~16k concurrent requests and the target had been restarted without virtual threads; re-run required |
 | 30,000 | pending | | | | | | | |
 | 40,000 | pending | | | | | | | |
 | 50,000 | pending | | | | | | | |
@@ -54,6 +54,35 @@ Target application:
   67,957 collections, 2 min 36.684 s total GC time (cumulative);
   old generation 1.502 GiB used of 1.502 GiB capacity; last cause
   G1 Humongous Allocation
+
+### 20,000 users — first attempt (invalid, to be re-run)
+
+Two defects make this attempt unusable as a rung:
+
+1. **The target was restarted without its virtual-thread executor.**
+   The application process changed (pid 129724 → 162408), and in the
+   new process the Virtual Threads panel stays at zero through the
+   load windows, where the previous process queued ~5,000 virtual
+   threads at run peaks. Tomcat therefore appears to have fallen back
+   to its default platform-thread pool, making the target itself a
+   bottleneck. Evidence:
+   [application JConsole Monitor](b-vt-httpclient4/20k/app-jconsole-monitor.jpg).
+2. **Concurrent requests from the generator capped at ~16k** instead
+   of reaching 20,000. Prime suspect: the Windows dynamic (ephemeral)
+   port range, 49152–65535 by default — exactly 16,384 ports, one
+   consumed per keep-alive connection from the generator to the
+   target for the whole run. Alternative suspect: generator heap
+   (the 10k rung already used ~890 MB of the 1 GiB maximum).
+   Discriminating checks: search `jmeter.log` for
+   `OutOfMemoryError` versus "Cannot assign requested address", and
+   `netsh int ipv4 show dynamicport tcp` on the generator.
+
+Implication for the ladder: on a single Windows generator talking to
+a single target endpoint, concurrent connections are bounded by the
+ephemeral port range (~16k by default, ~64k maximum if the range is
+widened), independently of threads or heap. The 30k–50k rungs need
+the range widened and/or additional source addresses — or a second
+generator.
 
 ## Series C — virtual threads + Netty
 
