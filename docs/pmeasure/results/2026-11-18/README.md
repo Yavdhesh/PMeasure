@@ -93,6 +93,12 @@ Queue depth measures backlog, not usage; the earlier process queued
 ~5,000 because it was drowning, so a smaller queue on a draining
 target is the healthy picture.
 
+The generator was likewise restarted for the re-run at an 8 GiB heap
+(pid 159148): JConsole confirms Max 8,589,934,592 B, used heap ~1.6
+GiB in a regular sawtooth, and only 70 live platform threads for the
+whole generator process:
+[generator JConsole Monitor, 8 GiB](b-vt-httpclient4/20k/generator-jconsole-monitor-8g.jpg).
+
 Implication for the ladder: on a single Windows generator talking to
 a single target endpoint, concurrent connections are bounded by the
 ephemeral port range (~16k by default, ~64k maximum if the range is
