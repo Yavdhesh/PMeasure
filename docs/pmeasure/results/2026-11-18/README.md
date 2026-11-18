@@ -83,6 +83,16 @@ Two defects make this attempt unusable as a rung:
    re-run. The ephemeral-port ceiling above remains a separate,
    still-standing limit for the higher rungs.
 
+After `spring.threads.virtual.enabled=true` was added to the
+target's `application.properties` and the target restarted
+(pid 66648), its Virtual Threads panel shows activity under load
+again — queued virtual threads spiking to ~660 in the first load
+burst, where the defective process showed a flat zero:
+[application JConsole Monitor, VT check](b-vt-httpclient4/20k/app-jconsole-monitor-vt-check.jpg).
+Queue depth measures backlog, not usage; the earlier process queued
+~5,000 because it was drowning, so a smaller queue on a draining
+target is the healthy picture.
+
 Implication for the ladder: on a single Windows generator talking to
 a single target endpoint, concurrent connections are bounded by the
 ephemeral port range (~16k by default, ~64k maximum if the range is
