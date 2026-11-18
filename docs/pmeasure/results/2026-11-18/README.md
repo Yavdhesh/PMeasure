@@ -99,6 +99,22 @@ GiB in a regular sawtooth, and only 70 live platform threads for the
 whole generator process:
 [generator JConsole Monitor, 8 GiB](b-vt-httpclient4/20k/generator-jconsole-monitor-8g.jpg).
 
+A further 20k attempt (generator pid 70772, target pid 119880, run
+stopped after ~90 s, so still not a clean rung) confirmed the target
+is back on virtual threads — its panel queues ~2,000–3,000 virtual
+threads during the burst
+([target Monitor](b-vt-httpclient4/20k/app-jconsole-monitor-20k-attempt.jpg)) —
+and showed the generator's queued virtual threads plateauing at
+16,140 with CPU at ~95%
+([generator Monitor](b-vt-httpclient4/20k/generator-jconsole-monitor-20k-attempt.jpg)).
+Note that the panel's mounted + queued counts exclude parked virtual
+threads, so they do not by themselves bound the live user count; the
+authoritative figures are the GUI's active-thread indicator and the
+Summary Report. A VisualVM thread dump of the target contains no
+virtual threads by construction (it lists platform threads only);
+virtual-thread verification needs `jcmd Thread.dump_to_file` taken
+mid-run.
+
 Implication for the ladder: on a single Windows generator talking to
 a single target endpoint, concurrent connections are bounded by the
 ephemeral port range (~16k by default, ~64k maximum if the range is
